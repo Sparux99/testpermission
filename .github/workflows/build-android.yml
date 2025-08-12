@@ -1,0 +1,96 @@
+name: Build Cordova Android (AAB or APK)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Java 17 (Temurin)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install helper packages
+        run: sudo apt-get update && sudo apt-get install -y wget unzip
+
+      - name: Install Android command-line tools & SDK packages
+        run: |
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/cmdline-tools.zip
+          unzip -q /tmp/cmdline-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest || true
+          export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
+            "platform-tools" \
+            "platforms;android-35" \
+            "build-tools;35.0.0"
+
+      - name: Expose Android SDK to PATH and env
+        run: |
+          echo "$HOME/android-sdk/platform-tools" >> $GITHUB_PATH
+          echo "$HOME/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "ANDROID_SDK_ROOT=$HOME/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$HOME/android-sdk" >> $GITHUB_ENV
+
+      - name: Install project dependencies & Cordova
+        run: |
+          if [ -f package-lock.json ] || [ -f package.json ]; then
+            npm install
+          fi
+          npm install -g cordova
+
+      - name: Prepare Cordova Android platform
+        run: |
+          cordova telemetry off || true
+          cordova platform rm android || true
+          cordova platform add android@latest --save
+
+      - name: Build Android App Bundle (AAB)
+        run: |
+          cordova build android --release --no-telemetry --verbose
+
+      - name: List output files
+        run: |
+          echo "📦 AAB files:"
+          ls -la platforms/android/app/build/outputs/bundle/release || true
+          echo "📦 APK files:"
+          ls -la platforms/android/app/build/outputs/apk/release || true
+
+      - name: Check if AAB file exists
+        run: |
+          FILE=platforms/android/app/build/outputs/bundle/release/*.aab
+          if ls $FILE 1> /dev/null 2>&1; then
+            echo "✅ AAB file found."
+          else
+            echo "❌ AAB file not found!"
+            exit 1
+          fi
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyWeatherApp-aab
+          path: platforms/android/app/build/outputs/bundle/release/**/*.aab
+
+      - name: Upload APK artifact (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyWeatherApp-apk
+          path: platforms/android/app/build/outputs/apk/release/**/*.apk
