@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>اختيار فيديو وتشغيله</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+  <h2>اختيار فيديو من جهازك وتشغيله</h2>
+  <button id="pickVideoBtn">اختر فيديو</button>
+  <br/><br/>
+  <video id="videoPlayer" width="320" height="240" controls></video>
+
+  <script>
+    document.addEventListener('deviceready', function () {
+      const permissions = cordova.plugins.permissions;
+      const pickBtn = document.getElementById('pickVideoBtn');
+      const video = document.getElementById('videoPlayer');
+
+      // طلب إذن الوصول للقراءة
+      function checkPermissions(cb) {
+        permissions.checkPermission(permissions.READ_EXTERNAL_STORAGE, function(status) {
+          if (status.hasPermission) {
+            cb();
+          } else {
+            permissions.requestPermission(permissions.READ_EXTERNAL_STORAGE, function(status2) {
+              if (status2.hasPermission) {
+                cb();
+              } else {
+                alert('لم يتم منح الإذن للوصول للملفات');
+              }
+            }, function() {
+              alert('فشل طلب الإذن');
+            });
+          }
+        }, null);
+      }
+
+      pickBtn.addEventListener('click', function () {
+        checkPermissions(function () {
+          // استدعاء نافذة اختيار ملف الفيديو
+          window.FileChooser.open(function(uri) {
+            console.log('اختار المستخدم:', uri);
+
+            // نضع رابط الفيديو في عنصر الفيديو
+            // لكن uri عادة يكون بصيغة content:// لذلك نحتاج لتحويله إلى ملف قابل للعرض
+
+            // أبسط حل هو استخدام cordova-plugin-file-path لتحويل المحتوى إلى مسار حقيقي
+            window.FilePath.resolveNativePath(uri, function(filePath) {
+              console.log('المسار الحقيقي:', filePath);
+
+              // نستخدم مسار الملف في الفيديو
+              video.src = filePath;
+              video.load();
+              video.play();
+            }, function(err) {
+              alert('خطأ في الحصول على المسار الحقيقي: ' + err);
+            });
+          }, function(err) {
+            alert('فشل اختيار الملف: ' + err);
+          });
+        });
+      });
+    }, false);
+  </script>
+</body>
+</html>

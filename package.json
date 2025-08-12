@@ -1,0 +1,31 @@
+{
+  "name": "com.example.videotestapp",
+  "displayName": "VideoTestApp",
+  "version": "1.0.0",
+  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecosystem:cordova"
+  ],
+  "author": "Apache Cordova Team",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "cordova-android": "^14.0.1",
+    "cordova-plugin-android-permissions": "^1.1.5",
+    "cordova-plugin-filechooser": "^1.2.0",
+    "cordova-plugin-filepath": "^1.6.0"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-filechooser": {},
+      "cordova-plugin-android-permissions": {},
+      "cordova-plugin-filepath": {}
+    },
+    "platforms": [
+      "android"
+    ]
+  }
+}
