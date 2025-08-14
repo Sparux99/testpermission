@@ -4,10 +4,10 @@
     xmlns:cdv="http://cordova.apache.org/ns/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <name>HelloCordova</name>
+    <name>Test App</name>
     <description>Sample Apache Cordova App with File + Notifications Permissions</description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
+    <author email="sparux19@gmail.com" href="https://sparux.org">
+        Amine
     </author>
 
     <content src="index.html" />
