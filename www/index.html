@@ -37,13 +37,81 @@
         <title>Hello World</title>
     </head>
     <body>
-        <div class="app">
-            <h1>Apache Cordova</h1>
-            <div id="deviceready" class="blink">
-                <p class="event listening">Connecting to Device</p>
-                <p class="event received">Device is Ready</p>
-            </div>
-        </div>
+        <!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>File Access Test</title>
+<style>
+    body { font-family: Arial, sans-serif; padding: 10px; }
+    .result { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; }
+    pre { background: #f4f4f4; padding: 5px; }
+</style>
+</head>
+<body>
+
+<h1>اختبار الوصول للذاكرة</h1>
+
+<div id="output"></div>
+
+<script>
+function logResult(title, msg) {
+    const out = document.getElementById("output");
+    out.innerHTML += `<div class="result"><strong>${title}:</strong><pre>${msg}</pre></div>`;
+}
+
+document.addEventListener("deviceready", function() {
+    // الطريقة 1: استخدام cordova.file.externalRootDirectory
+    try {
+        logResult("الطريقة 1", "المسار: " + cordova.file.externalRootDirectory);
+        window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function(dirEntry) {
+            logResult("الطريقة 1 - النجاح", "تم الوصول للمجلد: " + dirEntry.fullPath);
+        }, function(err) {
+            logResult("الطريقة 1 - خطأ", JSON.stringify(err));
+        });
+    } catch(e) {
+        logResult("الطريقة 1 - استثناء", e.message);
+    }
+
+    // الطريقة 2: محاولة قراءة مجلد التنزيلات مباشرة
+    try {
+        const downloadsPath = cordova.file.externalRootDirectory + "Download/";
+        logResult("الطريقة 2", "المسار: " + downloadsPath);
+        window.resolveLocalFileSystemURL(downloadsPath, function(dirEntry) {
+            const reader = dirEntry.createReader();
+            reader.readEntries(function(entries) {
+                let fileList = entries.map(e => e.name).join("\n");
+                logResult("الطريقة 2 - الملفات", fileList || "لا توجد ملفات / لم يتم الوصول");
+            }, function(err) {
+                logResult("الطريقة 2 - خطأ قراءة", JSON.stringify(err));
+            });
+        }, function(err) {
+            logResult("الطريقة 2 - خطأ", JSON.stringify(err));
+        });
+    } catch(e) {
+        logResult("الطريقة 2 - استثناء", e.message);
+    }
+
+    // الطريقة 3: إنشاء مجلد خاص بالتطبيق على الجذر
+    try {
+        window.resolveLocalFileSystemURL(cordova.file.externalRootDirectory, function(dirEntry) {
+            dirEntry.getDirectory("MyCordovaTestFolder", { create: true }, function(newDir) {
+                logResult("الطريقة 3 - نجاح", "تم إنشاء أو الوصول للمجلد: " + newDir.fullPath);
+            }, function(err) {
+                logResult("الطريقة 3 - خطأ إنشاء", JSON.stringify(err));
+            });
+        }, function(err) {
+            logResult("الطريقة 3 - خطأ", JSON.stringify(err));
+        });
+    } catch(e) {
+        logResult("الطريقة 3 - استثناء", e.message);
+    }
+});
+</script>
+
+</body>
+</html>
+
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>
     </body>

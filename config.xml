@@ -1,11 +1,41 @@
-<?xml version='1.0' encoding='utf-8'?>
-<widget id="TestApp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<?xml version='1.1' encoding='utf-8'?>
+<widget id="TestApp" version="1.0.0"
+        xmlns="http://www.w3.org/ns/widgets"
+        xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>HelloCordova</name>
     <description>Sample Apache Cordova App</description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
+    <author email="dev@cordova.apache.org"
+            href="https://cordova.apache.org">
         Apache Cordova Team
     </author>
     <content src="index.html" />
+
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
+
+    <platform name="android">
+
+        <!-- أذونات الوسائط على Android 13+ -->
+        <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+        <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+        <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+        <!-- للإصدارات الأقدم -->
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+                         android:maxSdkVersion="32" />
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+                         android:maxSdkVersion="32" />
+
+        <!-- لإعطاء صلاحية إدارة الملفات الكاملة (منح يدوي) -->
+        <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+
+        <!-- إذن الإشعارات على Android 13+ -->
+        <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    </platform>
+
+    <!-- إضافة البلاغين الضروريين -->
+    <plugin name="cordova-plugin-file" />
+    <plugin name="cordova-plugin-local-notifications" />
+
 </widget>
