@@ -7,19 +7,20 @@ function onDeviceReady() {
     cordova.plugins.notification.local.requestPermission(function (granted) {
         if (granted) {
             console.log("إذن الإشعارات مُنح ✅");
-            // إشعار ترحيبي عند تشغيل التطبيق
+
+            // ---- إشعار ترحيبي عند فتح التطبيق ----
             cordova.plugins.notification.local.schedule({
                 id: 1,
-                title: "اختبار الإشعارات",
-                text: "التطبيق بدأ العمل بنجاح",
-                foreground: true
+                title: "مرحبا بك!",
+                text: "لقد وافقت على الإشعارات والتطبيق بدأ العمل بنجاح.",
+                foreground: true // يظهر حتى لو التطبيق مفتوح
             });
 
-            // ---- 2. جدولة إشعار كل دقيقة للتحقق ----
+            // ---- إشعار كل دقيقة ----
             setInterval(function () {
                 cordova.plugins.notification.local.schedule({
-                    id: Date.now(), // رقم مميز
-                    title: "اختبار دوري",
+                    id: Date.now(), // رقم مميز لكل إشعار
+                    title: "إشعار دوري",
                     text: "هذا إشعار تحقق كل دقيقة",
                     foreground: true
                 });
@@ -30,6 +31,9 @@ function onDeviceReady() {
         }
     });
 
-    // ---- 3. هنا تظل الأكواد الأصلية لاختبار الملفات كما هي ----
-    // يمكنك نسخ الأكواد من HTML ووضعها هنا أو تركها كما هي في HTML
+    // ---- مثال إضافي: التعامل مع الضغط على الإشعار ----
+    cordova.plugins.notification.local.on('click', function (notification) {
+        console.log('تم الضغط على الإشعار: ' + notification.id);
+        alert('تم الضغط على الإشعار: ' + notification.id);
+    });
 }
